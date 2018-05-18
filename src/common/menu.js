@@ -17,7 +17,24 @@ const menuData = [
     name: 'Deployments',
     icon: 'rocket',
     path: 'deployments',
-
+    children: [
+      {
+        name: 'Dashboard',
+        path: 'diagram0',
+      },{
+        name: 'New Deployment',
+        path: 'diagram',
+      },{
+        name: 'All Deployments',
+        path: 'diagram2'
+      },{
+        name: 'All Builds',
+        path: 'diagram3',
+      }, {
+        name: 'Monitor',
+        path: 'diagram4',
+      }
+    ]
   },
   {
     name: 'Users',
@@ -29,7 +46,7 @@ const menuData = [
     name: 'Dashboard',
     icon: 'dashboard',
     path: 'dashboard',
-    hideInMenu: false,
+    hideInMenu: true,
     children: [
       {
         name: 'Analysis',
@@ -38,13 +55,13 @@ const menuData = [
       {
         name: 'Monitor',
         path: 'monitor',
-        hideInMenu: false,
+        hideInMenu: true,
       },
       {
         name: 'Workplace',
         path: 'workplace',
         // hideInBreadcrumb: true,
-        hideInMenu: false,
+        hideInMenu: true,
       },
     ],
   },
@@ -52,7 +69,7 @@ const menuData = [
     name: 'Form',
     icon: 'form',
     path: 'form',
-    hideInMenu: false,
+    hideInMenu: true,
     children: [
       {
         name: 'Basic Form',
@@ -73,7 +90,7 @@ const menuData = [
     name: 'Table',
     icon: 'table',
     path: 'list',
-    hideInMenu: false,
+    hideInMenu: true,
 
     children: [
       {
@@ -112,7 +129,7 @@ const menuData = [
     name: 'Profile',
     icon: 'profile',
     path: 'profile',
-    hideInMenu: false,
+    hideInMenu: true,
 
     children: [
       {
@@ -130,7 +147,7 @@ const menuData = [
     name: 'Result',
     icon: 'check-circle-o',
     path: 'result',
-    hideInMenu: false,
+    hideInMenu: true,
 
     children: [
       {
@@ -147,7 +164,7 @@ const menuData = [
     name: 'Warnings',
     icon: 'warning',
     path: 'exception',
-    hideInMenu: false,
+    hideInMenu: true,
 
     children: [
       {
@@ -165,7 +182,7 @@ const menuData = [
       {
         name: 'Trigger',
         path: 'trigger',
-        hideInMenu: false,
+        hideInMenu: true,
       },
     ],
   },
@@ -174,7 +191,7 @@ const menuData = [
     icon: 'user',
     path: 'user',
     authority: 'guest',
-    hideInMenu: false,
+    hideInMenu: true,
     children: [
       {
         name: 'Login',

@@ -6,7 +6,6 @@ import { Row, Col, Form, Card, Select, Icon, Avatar, List, Tooltip, Dropdown, Me
 
 import * as SRD from "storm-react-diagrams"
 require("storm-react-diagrams/dist/style.min.css");
-require("./List.css");
 
 import TagSelect from 'components/TagSelect';
 import StandardFormRow from 'components/StandardFormRow';
@@ -126,58 +125,6 @@ export default class EnvironmentList extends PureComponent {
         </Menu.Item>
       </Menu>
     );
-
-    // 1) setup the diagram engine
-    var engine = new SRD.DiagramEngine();
-    engine.installDefaultFactories();
-
-    // 2) setup the diagram model
-    var model = new SRD.DiagramModel();
-
-    // 3) create a default node
-    var node1 = new SRD.DefaultNodeModel("MICRO SERVIÇO", "rgb(0,192,255)");
-    let port1 = node1.addOutPort(" ");
-    node1.setPosition(100, 100);
-
-    // 4) create another default node
-    var node2 = new SRD.DefaultNodeModel("Mongo", "rgb(192,255,0)");
-    let port2 = node2.addInPort(" ");
-    node2.setPosition(400, 100);
-
-
-    var node3 = new SRD.DefaultNodeModel("Kafka", "rgb(192,255,0)");
-    let port3 = node3.addInPort(" ");
-    node3.setPosition(400, 300);
-
-    var node4 = new SRD.DefaultNodeModel("Elastic", "rgb(192,255,0)");
-    let port4 = node4.addInPort(" ");
-    node4.setPosition(400, 500);
-
-
-    // 5) link the ports
-    let link1 = port1.link(port2);
-    let link2 = port1.link(port3);
-    let link3 = port1.link(port4);
-
-    link1.addLabel("Custom label 1");
-
-    // 6) add the models to the root graph
-    model.addAll(node1, node2, node3, node4, link1, link2, link3);
-
-    model.addListener({
-      selectionChanged: action("selectionChanged")
-    });
-  
-
-    // 7) load model into engine
-    engine.setDiagramModel(model);
-
-
-    return (
-      <div style={{ width: '100vw', height: '100vh'}}>
-        <SRD.DiagramWidget diagramEngine={engine} className={styles.srdDemoCanvas}/>
-        </div>
-    )
 
     return (
       <PageHeaderLayout
