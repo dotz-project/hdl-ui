@@ -9,6 +9,8 @@ import {TrayWidget} from './TrayWidget'
 import {TrayItemWidget} from "./TrayItemWidget";
 import {Application} from "./Application";
 
+import ModalSolution from "./ModalSolution";
+
 import styles from './Diagram.less';
 
 const FormItem = Form.Item;
@@ -19,6 +21,7 @@ const { TextArea } = Input;
 @connect(({ loading }) => ({
     submitting: loading.effects['form/submitRegularForm'],
 }))
+
 @Form.create()
 export default class Diagram extends PureComponent {
     
@@ -41,6 +44,8 @@ export default class Diagram extends PureComponent {
         };
 
         this.handleCreate = this.handleCreate.bind(this);
+        this.delSolution = this.delSolution.bind(this);
+        this.editSolution = this.editSolution.bind(this);
 
         this.showComponentModal = this.showComponentModal.bind(this);
         this.handleComponentModalOk = this.handleComponentModalOk.bind(this);
@@ -132,12 +137,14 @@ export default class Diagram extends PureComponent {
         _solutions.push(sol)
         this.props.form.setFieldsValue({ solutions: _solutions})
     }
-    delSolution(sol) {
-        _solutions = this.props.form.getFieldsValue('solutions')
-        _solutions.push(sol)
-        this.props.form.setFieldsValue({ solutions: _solutions })
+    
+    delSolution(e) {
+        e.preventDefault();
+        var _solutions = this.props.form.getFieldValue('solutions');
+        this.props.form.setFieldsValue({ solutions: [] })
     }
-    editSolution(sol) {
+
+    editSolution(e) {
         _solutions = this.props.form.getFieldsValue('solutions')
         _solutions.push(sol)
         this.props.form.setFieldsValue({ solutions: _solutions })
@@ -145,7 +152,6 @@ export default class Diagram extends PureComponent {
 
     handleCreate(e) {
         e.preventDefault();
-        
         
         this.props.form.validateFieldsAndScroll((err, values) => {
             console.log(values);
@@ -162,7 +168,6 @@ export default class Diagram extends PureComponent {
         console.log(e)
     }
 
-
     ms;
     msp;
 
@@ -177,6 +182,8 @@ export default class Diagram extends PureComponent {
         this.msp = this.ms.addInPort(" ");
         /** Adiciona no palco */
         this.state.app.getDiagramEngine().getDiagramModel().addAll(this.ms);
+        this.props.form.setFieldsValue({ solutions: [] })
+
     }
 
     render() {
@@ -221,7 +228,6 @@ export default class Diagram extends PureComponent {
 
         return (
             <div className="content">
-               
                 {/*Modal Components*/}
                 <Modal 
                     title={this.state.modal.component.name} 
@@ -236,46 +242,31 @@ export default class Diagram extends PureComponent {
                     <p>Some contents...</p>
                 </Modal>
                 {/*Modal Solutions*/}
-                <Modal
-                    title={this.state.modal.solution.name}
-                    visible={this.state.modal.solution.visible}
+                <ModalSolution
+                    title = "Solution"
+                    visible = {this.state.modal.solution.visible}
                     onOk={this.handleSolutionModalOk}
                     onCancel={this.handleSolutionModalCancel}
+                    onSuccess = {(data)=>{
+                        var _solutions = this.props.form.getFieldValue('solutions');
+                        if (typeof _solutions != "object"){
+                            _solutions = [];    
+                        }
+                        _solutions.push(data.solution);
+                        this.props.form.setFieldsValue({'solutions': _solutions});
+                        this.setState({
+                            modal: {
+                                ...this.state.modal,
+                                solution: {
+                                    visible: false
+                                }
+                            }
+                        });             
+                    }}
+                    onFail={(err) => { console.log(err)}}
                     okText="OK"
-                    cancelText="Close" >
-                    <p>Fill follow fields:</p>
-                    <FormItem label="Name" style={{ margin: 0 }}>
-                        {getFieldDecorator('name', {
-                            rules: [{required: true,message: 'Enter name'}],
-                        })(<Input placeholder="MicroService.API.Default" />)}
-                    </FormItem>
-                    <FormItem label="Tecnology" style={{ margin: 0 }}>
-                        <Select
-                            mode="simple"
-                            placeholder="Tecnology"
-                            style={{
-                                margin: '8px 0',
-                                width: '10vw'
-                            }} >
-                            <Option value="1">netcore</Option>
-                            <Option value="2">golang</Option>
-                            <Option value="3">react</Option>
-                            <Option value="4">angular</Option>
-                            <Option value="5">node</Option>
-                            <Option value="6">php</Option>
-                        </Select>
-                    </FormItem>
-                    <Divider />
-                    <Checkbox.Group style={{ width: '100%' }} >
-                        <Row>
-                            <Col span={8}><Checkbox value="A">public</Checkbox></Col>
-                            <Col span={8}><Checkbox value="B">http</Checkbox></Col>
-                            <Col span={8}><Checkbox value="C">https</Checkbox></Col>
-                            <Col span={8}><Checkbox value="D">consumer</Checkbox></Col>
-                            <Col span={8}><Checkbox value="E">worker</Checkbox></Col>
-                        </Row>
-                    </Checkbox.Group>,
-                </Modal>
+                    cancelText="Close" />
+                
                 {/*View Application*/}
                 <Row>
                     {/*First col form*/}
@@ -323,11 +314,10 @@ export default class Diagram extends PureComponent {
                                             size="small"
                                             footer={<Button type="dashed" htmlType="submit" style={{width:'100%'}} size="small" onClick={this.showSolutionModal} >Add Solution</Button>}
                                             bordered
-                                            dataSource={data}
+                                            dataSource={this.props.form.getFieldValue('solutions')}
                                             renderItem={item => (
-                                                <List.Item style={{ fontSize: 10 }} actions={[<Button icon="edit" size="small" />, <Button type="danger" icon="delete" size="small" />]}>
-                                                        {item}
-                                                    
+                                                <List.Item style={{ fontSize: 10 }} actions={[<Button icon="edit" size="small" onClick={this.editSolution} data={item} />, <Button type="danger" icon="delete" onClick={this.delSolution} data={item} size="small" />]}>
+                                                        {item.name}
                                                 </List.Item>
                                             )}
                                         />
@@ -444,14 +434,13 @@ export default class Diagram extends PureComponent {
                             <Col span={4} >
                                 <TrayWidget>
                                     <TrayItemWidget model={{ type: "out", name: "Mongo" }} icon="database" name="Mongo" color="rgb(95,125,100)" />
-                                    <TrayItemWidget model={{ type: "out", name: "AMPQ" }} icon="database" name="AMPQ" color="rgb(95,125,100)" />
                                     <TrayItemWidget model={{ type: "out", name: "Kafka" }} icon="database" name="Kafka" color="rgb(95,125,100)" />
-                                    <TrayItemWidget model={{ type: "out", name: "Elastic" }} icon="database" name="Elastic" color="rgb(95,125,100)" />
-                                    <TrayItemWidget model={{ type: "out", name: "Logs" }} icon="database" name="Logs" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "AMPQ" }} icon="database" name="AMPQ" color="rgb(95,125,100)" />
                                     <TrayItemWidget model={{ type: "out", name: "Redis" }} icon="database" name="Redis" color="rgb(95,125,100)" />
-                                    <TrayItemWidget model={{ type: "out", name: "Memcached" }} icon="database" name="Memcached" color="rgb(95,125,100)" />
                                     <TrayItemWidget model={{ type: "out", name: "Cassandra" }} icon="database" name="Cassandra" color="rgb(95,125,100)" />
                                     <TrayItemWidget model={{ type: "out", name: "SQL Server" }} icon="database" name="SQL Server" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Elastic" }} icon="database" name="Elastic" color="rgb(95,125,100)" />
+                                    
                                 </TrayWidget>
                             </Col>
                         </Row>
