@@ -19,18 +19,21 @@ const menuData = [
     path: 'deployments',
     children: [
       {
+        hideInMenu: true,
         name: 'Dashboard',
         path: 'diagram0',
       },{
         name: 'New Deployment',
         path: 'diagram',
       },{
-        name: 'All Deployments',
+        name: 'Deployments',
         path: 'diagram2'
       },{
-        name: 'All Builds',
+        hideInMenu: true,
+        name: 'Builds',
         path: 'diagram3',
       }, {
+        hideInMenu: true,
         name: 'Monitor',
         path: 'diagram4',
       }

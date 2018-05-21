@@ -45,7 +45,7 @@ export default class EnvironmentList extends PureComponent {
     this.props.dispatch({
       type: 'list/fetch',
       payload: {
-        count: 8,
+        count: 2,
       },
     });
   }
@@ -101,7 +101,9 @@ export default class EnvironmentList extends PureComponent {
 
     const formItemLayout = {
       wrapperCol: {
-        xs: { span: 24 },
+        xl: { span: 22 },
+        xs: { span: 22 },
+        lg: { span: 22 },
         sm: { span: 16 }
       },
     };
@@ -127,17 +129,19 @@ export default class EnvironmentList extends PureComponent {
     );
 
     return (
+      /*
       <PageHeaderLayout
         title="Environments"
         content="List with all available environments"
       >
-
+      */
+      <div className="content">
         <div className={styles.filterCardList}>
           
           <List
             rowKey="id"
-            style={{ marginTop: 24 }}
-            grid={{ gutter: 24, xl: 1, lg: 3, md: 3, sm: 2, xs: 1 }}
+            style={{ marginTop: 0 }}
+            grid={{ gutter: 20, xl: 1, lg: 3, md: 3, sm: 2, xs: 1 }}
             loading={loading}
             dataSource={list}
             renderItem={item => (
@@ -172,7 +176,8 @@ export default class EnvironmentList extends PureComponent {
             )}
           />
         </div>
-      </PageHeaderLayout>
+      </div>
+      /*</PageHeaderLayout>*/
     );
   }
 }

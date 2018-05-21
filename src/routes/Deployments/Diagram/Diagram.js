@@ -1,11 +1,9 @@
 import React, { PureComponent } from 'react';
 import numeral from 'numeral';
 import { connect } from 'dva';
-import { Row, Col, Form, Card, Select, Icon, Avatar, List, Tooltip, Dropdown, Menu, Modal } from 'antd';
-
+import {Form,Input,DatePicker,Select,Button,Card,InputNumber,Radio,Icon,Tooltip,Divider,List,Checkbox,Row,Col,Avatar,Menu,Modal} from 'antd';
 import * as SRD from "storm-react-diagrams"
 require("storm-react-diagrams/dist/style.min.css");
-require("./Diagram.css");
 
 import {TrayWidget} from './TrayWidget'
 import {TrayItemWidget} from "./TrayItemWidget";
@@ -13,146 +11,452 @@ import {Application} from "./Application";
 
 import styles from './Diagram.less';
 
+const FormItem = Form.Item;
+const { Option } = Select;
+const { RangePicker } = DatePicker;
+const { TextArea } = Input;
+
+@connect(({ loading }) => ({
+    submitting: loading.effects['form/submitRegularForm'],
+}))
+@Form.create()
 export default class Diagram extends PureComponent {
     
     constructor(props) {
         super(props);
         this.state = {
             app: new Application(),
-            visible: false,
-            compName : ""
+            modal : {
+                component : {
+                    name : "",
+                    visible : false,
+                    data : {}
+                },
+                solution: {
+                    name: "",
+                    visible: false,
+                    data: {},
+                }
+            }
         };
 
-        this.handleOk = this.handleOk.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);
+        this.handleCreate = this.handleCreate.bind(this);
+
+        this.showComponentModal = this.showComponentModal.bind(this);
+        this.handleComponentModalOk = this.handleComponentModalOk.bind(this);
+        this.handleComponentModalCancel = this.handleComponentModalCancel.bind(this);
+
+        this.showSolutionModal = this.showSolutionModal.bind(this);
+        this.handleSolutionModalOk = this.handleSolutionModalOk.bind(this);
+        this.handleSolutionModalCancel = this.handleSolutionModalCancel.bind(this);
 
     }
 
-    showModal(compName){
+    showComponentModal(name,data){
         this.setState({
-            visible: true,
-            compName: compName
+            modal : {
+                ...this.state.modal,
+                component : {
+                    visible: true,
+                    name : name,
+                    data: data
+                }
+            }
         });
     }
 
-    handleOk(e){
+    handleComponentModalOk(e){
+        e.preventDefault();
+        this.setState({
+            modal: {
+                ...this.state.modal,
+                component: {
+                    visible: false
+                }
+            }
+        });
+    }
+
+    handleComponentModalCancel(e){
+        e.preventDefault();
+        this.setState({
+            modal: {
+                ...this.state.modal,
+                component: {
+                    visible: false
+                }
+            }
+        });
+    }
+
+    showSolutionModal(e) {
+        e.preventDefault();
+        this.setState({
+            modal: {
+                ...this.state.modal,
+                solution: {
+                    visible: true,
+                    name: "",
+                    data: {}
+                }
+            }
+        });
+    }
+
+    handleSolutionModalOk(e) {
+        e.preventDefault();
+        this.setState({
+            modal: {
+                ...this.state.modal,
+                solution: {
+                    visible: false
+                }
+            }
+        });
+    }
+
+    handleSolutionModalCancel(e) {
+        e.preventDefault();
+        this.setState({
+            modal: {
+                ...this.state.modal,
+                solution: {
+                    visible: false
+                }
+            }
+        });
+    }
+
+    addSolution(sol){
+        _solutions = this.props.form.getFieldsValue('solutions')
+        _solutions.push(sol)
+        this.props.form.setFieldsValue({ solutions: _solutions})
+    }
+    delSolution(sol) {
+        _solutions = this.props.form.getFieldsValue('solutions')
+        _solutions.push(sol)
+        this.props.form.setFieldsValue({ solutions: _solutions })
+    }
+    editSolution(sol) {
+        _solutions = this.props.form.getFieldsValue('solutions')
+        _solutions.push(sol)
+        this.props.form.setFieldsValue({ solutions: _solutions })
+    }
+
+    handleCreate(e) {
+        e.preventDefault();
         
-        console.log(e);
-        this.setState({
-            visible: false,
-        });
-    }
-    handleCancel(e){
-        console.log(e);
-        this.setState({
-            visible: false,
+        
+        this.props.form.validateFieldsAndScroll((err, values) => {
+            console.log(values);
+            if (!err) {
+                this.props.dispatch({
+                    type: 'form/submitRegularForm',
+                    payload: values,
+                });
+            }
         });
     }
 
+    handleCancel(e) {
+        console.log(e)
+    }
 
+
+    ms;
+    msp;
 
     componentDidMount() {
-        /*
-        this.props.dispatch({
-            type: 'list/fetch',
-            payload: {
-                count: 8,
-            },
-        });
-        */
+        /** Carrega dos ambientes */
+        this.props.dispatch({type:'environments/list',payload:{}});
+        /** Carrega os componentes disponíveis */
+        this.props.dispatch({type:'components/list',payload:{}});
+        /** Cria o node referente ao deployment */
+        this.ms = new SRD.DefaultNodeModel("MICRO SERVIÇO", "rgb(0,192,255)");
+        this.ms.setPosition(140, 100);
+        this.msp = this.ms.addInPort(" ");
+        /** Adiciona no palco */
+        this.state.app.getDiagramEngine().getDiagramModel().addAll(this.ms);
     }
 
     render() {
+        const { submitting } = this.props;
+        const { getFieldDecorator, getFieldValue } = this.props.form;
+
+        const formItemLayout = {
+            labelCol: {
+                md: { span: 6 },
+                xs: { span: 24 },
+                sm: { span: 7 },
+            },
+            wrapperCol: {
+                md: { span: 18 },
+                xs: { span: 24 },
+                sm: { span: 12 }
+            },
+        };
+
+        const submitFormLayout = {
+            wrapperCol: {
+                md: { span: 24, offset: 0 },
+                xs: { span: 24, offset: 0 },
+                sm: { span: 10, offset: 7 },
+            },
+        };
+
+        const data = [
+            'MicroServico.API.Default',
+            'MicroServico.API.Private'
+        ];
+
+        const fields = {
+            "name": "API.Private",
+            "tecnology": "netcore",
+            "public": false,
+            "http": false,
+            "https": false,
+            "consumer": false,
+            "worker": false
+        };
+
         return (
             <div className="content">
-                <Modal
-                    title={"Configurar componente: " + this.state.compName}
-                    visible={this.state.visible}
-                    onOk={this.handleOk}
-                    onCancel={this.handleCancel}
-                    okText="OK"
-                    cancelText="Close"
-                >
+               
+                {/*Modal Components*/}
+                <Modal 
+                    title={this.state.modal.component.name} 
+                    visible={this.state.modal.component.visible} 
+                    onOk={this.handleComponentModalOk} 
+                    onCancel={this.handleComponentModalCancel} 
+                    okText="OK" 
+                    cancelText="Close" >
                     <p>Para continuar e adicionar este componente por favor preencha os campos abaixo:</p>
                     <hr />
                     <p>Some contents...</p>
                     <p>Some contents...</p>
                 </Modal>
+                {/*Modal Solutions*/}
+                <Modal
+                    title={this.state.modal.solution.name}
+                    visible={this.state.modal.solution.visible}
+                    onOk={this.handleSolutionModalOk}
+                    onCancel={this.handleSolutionModalCancel}
+                    okText="OK"
+                    cancelText="Close" >
+                    <p>Fill follow fields:</p>
+                    <FormItem label="Name" style={{ margin: 0 }}>
+                        {getFieldDecorator('name', {
+                            rules: [{required: true,message: 'Enter name'}],
+                        })(<Input placeholder="MicroService.API.Default" />)}
+                    </FormItem>
+                    <FormItem label="Tecnology" style={{ margin: 0 }}>
+                        <Select
+                            mode="simple"
+                            placeholder="Tecnology"
+                            style={{
+                                margin: '8px 0',
+                                width: '10vw'
+                            }} >
+                            <Option value="1">netcore</Option>
+                            <Option value="2">golang</Option>
+                            <Option value="3">react</Option>
+                            <Option value="4">angular</Option>
+                            <Option value="5">node</Option>
+                            <Option value="6">php</Option>
+                        </Select>
+                    </FormItem>
+                    <Divider />
+                    <Checkbox.Group style={{ width: '100%' }} >
+                        <Row>
+                            <Col span={8}><Checkbox value="A">public</Checkbox></Col>
+                            <Col span={8}><Checkbox value="B">http</Checkbox></Col>
+                            <Col span={8}><Checkbox value="C">https</Checkbox></Col>
+                            <Col span={8}><Checkbox value="D">consumer</Checkbox></Col>
+                            <Col span={8}><Checkbox value="E">worker</Checkbox></Col>
+                        </Row>
+                    </Checkbox.Group>,
+                </Modal>
+                {/*View Application*/}
+                <Row>
+                    {/*First col form*/}
+                    <Col span={10}>
+                        <Card bordered={false}>
+                            <Form onSubmit={this.handleCreate}  hideRequiredMark className={styles.advancedForm}>
+                                <FormItem { ...formItemLayout} label="Name" style={{ margin: 0 }}>
+                                    {getFieldDecorator('name', {
+                                        rules: [{required: true, message: 'Please correctly fill in the name of deployment.',}],
+                                    })(<Input placeholder="MicroServico" />)}
+                                </FormItem>
+                                <FormItem {...formItemLayout} label="Environments" style={{ margin: 0 }}>
+                                    {getFieldDecorator('environments', {
+                                        rules: [{required: true,message: 'Please select at least one.'}],
+                                    })(
+                                        <Select
+                                            mode="multiple"
+                                            placeholder="Environments"
+                                            style={{
+                                                margin: '8px 0',
+                                            }} >
+                                            <Option value="1">DEV</Option>
+                                            <Option value="2">UAT</Option>
+                                            <Option value="3">PROD</Option>
+                                            <Option value="4">NEXT.DEV</Option>
+                                            <Option value="5">NEXT.UAT</Option>
+                                            <Option value="6">NEXT.PROD</Option>
+                                        </Select>
+                                    )}
+                                </FormItem>
+                                <FormItem {...formItemLayout} label="Git/URL" style={{ margin: 0 }}>
+                                    {getFieldDecorator('girUrl', {
+                                        rules: [{required: true, message: 'Please correctly fill in the git url.'}],
+                                    })(<Input placeholder="git@github.com:dotz-project/hdl-api.git" />)}
+                                </FormItem>
+                                <FormItem {...formItemLayout} label="Git/Branch" style={{ margin: 0 }}>
+                                    {getFieldDecorator('girBrach', {rules: [{required: true,message: 'Please correctly fill in the git branch.'}],
+                                    })(<Input placeholder="master"  setFieldsValue="master"/>)}
+                                </FormItem>
+                                <FormItem {...formItemLayout} label="Solutions" style={{ margin: 0 }}>
+                                    {getFieldDecorator('solutions', { rules: [{required: true,message: 'Please add at least one.'}],
+                                    })(
+                                        <List
+                                            setFieldsValue={{}}
+                                            size="small"
+                                            footer={<Button type="dashed" htmlType="submit" style={{width:'100%'}} size="small" onClick={this.showSolutionModal} >Add Solution</Button>}
+                                            bordered
+                                            dataSource={data}
+                                            renderItem={item => (
+                                                <List.Item style={{ fontSize: 10 }} actions={[<Button icon="edit" size="small" />, <Button type="danger" icon="delete" size="small" />]}>
+                                                        {item}
+                                                    
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )}
+                                   
+                                </FormItem>
+                                {/*
+                                <FormItem {...formItemLayout} label="Advanced" style={{ margin: 0 }}>
+                                    <Button.Group size="default">
+                                        <Button type="primary" icon="solution" ><small> Dockerfile </small></Button>
+                                        <Button type="primary" icon="cloud" ><small> POD (yml)</small></Button>
+                                        <Button type="primary" icon="download" ><small> Ing (yml) </small></Button>
+                                    </Button.Group>
+                                </FormItem>
+                                */}
+                                <Divider />
+                                <FormItem  style={{ marginTop: 0 }}>
+                                    <Button.Group size="large" style={{ width: '100%' }}>
+                                        <Button style={{ width: '25%' }}>CANCEL</Button>
+                                        <Button type="primary" style={{ width: '75%' }} htmlType="submit" loading={submitting} >CREATE</Button>
+                                    </Button.Group>
+                                </FormItem>
+                                {getFieldDecorator('components',{ rules: [{ required: false, message: '' }] })(<Divider />)}
+                            </Form>
+                        </Card>
 
-                <TrayWidget>
-                    <TrayItemWidget model={{ type: "out", name:"Mongo" }} name="Mongo" color="rgb(192,255,0)" />
-                    <TrayItemWidget model={{ type: "out", name:"AMPQ" }} name="AMPQ" color="rgb(192,255,0)" />
-                    <TrayItemWidget model={{ type: "out", name:"Kafka" }} name="Kafka" color="rgb(192,255,0)" />
-                    <TrayItemWidget model={{ type: "out", name:"Elastic" }} name="Elastic" color="rgb(192,255,0)" />
-                    <TrayItemWidget model={{ type: "out", name:"Logs" }} name="Logs" color="rgb(192,255,0)" />
-                    <TrayItemWidget model={{ type: "out", name:"Redis" }} name="Redis" color="rgb(192,255,0)" />
-                    <TrayItemWidget model={{ type: "out", name:"Memcached" }} name="Memcached" color="rgb(192,255,0)" />
-                    <TrayItemWidget model={{ type: "out", name:"Cassandra" }} name="Cassandra" color="rgb(192,255,0)" />
-                    <TrayItemWidget model={{ type: "out", name:"SQL Server" }} name="SQL Server" color="rgb(192,255,0)" />
-                </TrayWidget>
-                <TrayWidget>    
-                    <TrayItemWidget model={{ type: "out", name:"Members" }} name="Members" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"SignUp" }} name="SignUp" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"Wallet" }} name="Wallet" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"Rewards" }} name="Rewards" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"Redemptions" }} name="Redemptions" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"Agreements" }} name="Agreements" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"Billing" }} name="Billing" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"Deposits" }} name="Deposits" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"Offers" }} name="Offers" color="rgb(192,255,200)" />
-                    <TrayItemWidget model={{ type: "out", name:"Purple" }} name="Purple" color="rgb(192,255,200)" />
-                </TrayWidget>
-                <div
-                    className="diagram-layer"
-                    onDrop={event => {
-                        var data = JSON.parse(event.dataTransfer.getData("storm-diagram-node"));
-                        var nodesCount = Object.keys(
-                            this.state.app
-                                .getDiagramEngine()
-                                .getDiagramModel()
-                                .getNodes()
-                        ).length;
-                        var node = null;
-                        var port;
-                        if (data.type === "out") {
-                            node = new SRD.DefaultNodeModel(data.name, "rgb(192,255,0)");
-                            port = node.addOutPort("out");
-                        } 
-                        var points = this.state.app.getDiagramEngine().getRelativeMousePoint(event);
-                        node.x = points.x;
-                        node.y = points.y;
-                        console.log(this.state.app.getMsInPort());
-                       
-                        this.state.app
-                            .getDiagramEngine()
-                            .getDiagramModel()
-                            .addAll(node);
 
-                        this.forceUpdate();
-                       
-                        /*
-                        var link = port.link(this.state.app.getMsInPort());
-                        link.addLabel("OK");
-    
-                        this.state.app
-                            .getDiagramEngine()
-                            .getDiagramModel()
-                            .addAll(link);
 
-                        this.forceUpdate();
-                        */
-                        //this.showModal(data.name);
-                        this.forceUpdate();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                         
-
-                    }}
-                    onDragOver={event => {
-                        event.preventDefault();
-                    }}
-                    >
-                    <SRD.DiagramWidget className={styles.srdDemoCanvas} diagramEngine={this.state.app.getDiagramEngine()}  />
-                </div>
+                    </Col> 
+                    {/*Second col diagram canvas*/}
+                    <Col span={14}>
+                        <Row>
+                            {/*Ours Components*/}
+                            <Col span={4} offset={1}>
+                                <TrayWidget>
+                                    <TrayItemWidget model={{ type: "out", name: "Members" }} icon="team" name="Members" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "SignUp" }}  icon="user" name="SignUp" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Wallet" }}  icon="wallet" name="Wallet" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Rewards" }}  icon="gift" name="Rewards" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Redemptions" }}  icon="bank" name="Redemptions" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Agreements" }}  icon="form" name="Agreements" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Billing" }}  icon="calculator" name="Billing" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Deposits" }} icon="download" name="Deposits" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Offers" }}  icon="shop" name="Offers" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Purple" }}  icon="star" name="Purple" color="rgb(95,125,100)" />
+                                </TrayWidget>
+                            </Col>
+                            {/*Diagram Canvas*/}
+                            <Col span={15}>
+                                <div
+                                    className="diagram-layer"
+                                    onDrop={ event => {
+                                        var data = JSON.parse(event.dataTransfer.getData("storm-diagram-node"));
+                                        var nodesCount = Object.keys(this.state.app.getDiagramEngine().getDiagramModel().getNodes()).length;
+                                        var node = null;
+                                        var port;
+                                        node = new SRD.DefaultNodeModel(data.name, "rgb(192,255,0)");
+                                        port = node.addOutPort(" ");
+                                        /*var points = this.state.app.getDiagramEngine().getRelativeMousePoint(event);
+                                        node.x = points.x;
+                                        node.y = points.y;*/
+                                        var link = port.link(this.msp);
+                                        this.state.app.getDiagramEngine().getDiagramModel().addAll(node, link);
+                                        this.forceUpdate();
+                                        this.showComponentModal(data.name);
+                                        this.props.form.setFieldsValue({ components: this.state.app.getDiagramEngine().getDiagramModel().getNodes() })
+                                    }}
+                                    onDragOver={event => {
+                                        event.preventDefault();
+                                    }}
+                                >
+                                    <SRD.DiagramWidget smartRouting={false} className={styles.srdDemoCanvas} diagramEngine={this.state.app.getDiagramEngine()} />
+                                </div>
+                            </Col>
+                            {/*3rd Components*/}
+                            <Col span={4} >
+                                <TrayWidget>
+                                    <TrayItemWidget model={{ type: "out", name: "Mongo" }} icon="database" name="Mongo" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "AMPQ" }} icon="database" name="AMPQ" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Kafka" }} icon="database" name="Kafka" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Elastic" }} icon="database" name="Elastic" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Logs" }} icon="database" name="Logs" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Redis" }} icon="database" name="Redis" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Memcached" }} icon="database" name="Memcached" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "Cassandra" }} icon="database" name="Cassandra" color="rgb(95,125,100)" />
+                                    <TrayItemWidget model={{ type: "out", name: "SQL Server" }} icon="database" name="SQL Server" color="rgb(95,125,100)" />
+                                </TrayWidget>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
             </div>
         )
     }

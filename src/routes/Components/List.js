@@ -206,10 +206,11 @@ export default class ComponentList extends PureComponent {
     };
 
     return (
-      <PageHeaderLayout
+      /*<PageHeaderLayout
         title="Components"
         content="List with all available components"
-      >
+      >*/
+      <div>
       <h2>The 3rd</h2>
       <div className={styles.coverCardList}>
         <div className={styles.cardList}>{cardList}</div>
@@ -219,7 +220,8 @@ export default class ComponentList extends PureComponent {
         <div className={styles.coverCardList}>
           <div className={styles.cardList}>{cardList2}</div>
         </div>
-      </PageHeaderLayout>
+       </div>
+      /*</PageHeaderLayout>*/
     );
   }
 }

@@ -2,11 +2,7 @@ import { parse } from 'url';
 
 const titles = [
   'Dotzcloud 2.0 Production',
-  'Dotzcloud 2.0 UAT',
-  'Dotzcloud 2.0 Sandbox',
-  'Dotzcloud 3.0 Production',
-  'Dotzcloud 3.0 UAT',
-  'Dotzcloud 3.0 Sandbox'
+  'Dotzcloud 2.0 UAT'
 ];
 const avatars = [
   'https://gw.alipayobjects.com/zos/rmsportal/dURIMkkrRFpPgTuzkwnB.png', // Alipay

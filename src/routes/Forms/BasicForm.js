@@ -11,6 +11,13 @@ import {
   Radio,
   Icon,
   Tooltip,
+  Divider,
+  List,
+  Modal,
+  Checkbox,
+  Row,
+  Col,
+  Avatar
 } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import styles from './style.less';
@@ -36,6 +43,43 @@ export default class BasicForms extends PureComponent {
       }
     });
   };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+      compName: ""
+    };
+
+    this.handleOk = this.handleOk.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
+
+  }
+
+  showModal(compName) {
+    this.setState({
+      visible: true,
+      compName: compName
+    });
+  }
+
+  handleOk(e) {
+
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  }
+  handleCancel(e) {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  }
+
+
+
+
   render() {
     const { submitting } = this.props;
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -59,138 +103,122 @@ export default class BasicForms extends PureComponent {
       },
     };
 
+
+    const data = [
+      'MicroServico.API.Default',
+      'MicroServico.API.Private',
+      'MicroServico.UI.Default'
+    ];
+
+    const fields =
+      {
+        "name": "API.Private",
+        "tecnology": "netcore",
+        "public": false,
+        "http": false,
+        "https": false,
+        "consumer": false,
+        "worker": false
+      };
     return (
-      <PageHeaderLayout
-        title="基础表单"
-        content="表单页用于向用户收集或验证信息，基础表单常见于数据项较少的表单场景。"
-      >
+
         <Card bordered={false}>
+
+          <h2>Deployment Config</h2>
           <Form onSubmit={this.handleSubmit} hideRequiredMark style={{ marginTop: 8 }}>
-            <FormItem {...formItemLayout} label="标题">
-              {getFieldDecorator('title', {
+          <FormItem label="Name" style={{ margin: 0 }}>
+              {getFieldDecorator('name', {
                 rules: [
                   {
                     required: true,
-                    message: '请输入标题',
+                    message: 'Enter deployment name',
                   },
                 ],
-              })(<Input placeholder="给目标起个名字" />)}
+              })(<Input placeholder="MicroServico" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="起止日期">
-              {getFieldDecorator('date', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择起止日期',
-                  },
-                ],
-              })(<RangePicker style={{ width: '100%' }} placeholder={['开始日期', '结束日期']} />)}
+            <FormItem label="Environments" style={{ margin: 0 }}>
+              <Select
+                mode="multiple"
+                placeholder="Environments"
+                style={{
+                  margin: '8px 0',
+                }}
+              >
+                <Option value="1">DEV</Option>
+                <Option value="2">UAT</Option>
+                <Option value="3">PROD</Option>
+                <Option value="4">NEXT.DEV</Option>
+                <Option value="5">NEXT.UAT</Option>
+                <Option value="6">NEXT.PROD</Option>
+              </Select>
             </FormItem>
-            <FormItem {...formItemLayout} label="目标描述">
-              {getFieldDecorator('goal', {
+         
+            <FormItem label="Git/URL" style={{ margin: 0 }}>
+              {getFieldDecorator('gitURL', {
                 rules: [
                   {
                     required: true,
-                    message: '请输入目标描述',
+                    message: '',
                   },
                 ],
-              })(
-                <TextArea
-                  style={{ minHeight: 32 }}
-                  placeholder="请输入你的阶段性工作目标"
-                  rows={4}
+            })(<Input placeholder="git@github.com:dotz-project/hdl-api.git" />)}
+            </FormItem>
+
+          <FormItem label="Git/Branch" style={{ margin: 0 }}>
+              {getFieldDecorator('gitBranch', {
+                rules: [
+                  {
+                    required: true,
+                    message: '',
+                  },
+                ],
+              })(<Input placeholder="master" />)}
+            </FormItem>
+
+
+          <FormItem label="Solutions" style={{ margin: 0 }}>
+          
+          </FormItem>
+          
+          
+          <List
+            size="small"
+            footer={<Button type="primary" htmlType="submit" onClick={()=>{this.showModal('')}} >Add</Button>}
+            bordered
+            dataSource={data}
+            renderItem={item => (
+              <List.Item actions={[<Button icon="edit" size="small" />, <Button type="danger" icon="delete" size="small" />]}>
+                <List.Item.Meta
+                  title={item}
                 />
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label="衡量标准">
-              {getFieldDecorator('standard', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入衡量标准',
-                  },
-                ],
-              })(<TextArea style={{ minHeight: 32 }} placeholder="请输入衡量标准" rows={4} />)}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label={
-                <span>
-                  客户
-                  <em className={styles.optional}>
-                    （选填）
-                    <Tooltip title="目标的服务对象">
-                      <Icon type="info-circle-o" style={{ marginRight: 4 }} />
-                    </Tooltip>
-                  </em>
-                </span>
-              }
-            >
-              {getFieldDecorator('client')(
-                <Input placeholder="请描述你服务的客户，内部客户直接 @姓名／工号" />
-              )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label={
-                <span>
-                  邀评人<em className={styles.optional}>（选填）</em>
-                </span>
-              }
-            >
-              {getFieldDecorator('invites')(
-                <Input placeholder="请直接 @姓名／工号，最多可邀请 5 人" />
-              )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label={
-                <span>
-                  权重<em className={styles.optional}>（选填）</em>
-                </span>
-              }
-            >
-              {getFieldDecorator('weight')(<InputNumber placeholder="请输入" min={0} max={100} />)}
-              <span>%</span>
-            </FormItem>
-            <FormItem {...formItemLayout} label="目标公开" help="客户、邀评人默认被分享">
-              <div>
-                {getFieldDecorator('public', {
-                  initialValue: '1',
-                })(
-                  <Radio.Group>
-                    <Radio value="1">公开</Radio>
-                    <Radio value="2">部分公开</Radio>
-                    <Radio value="3">不公开</Radio>
-                  </Radio.Group>
-                )}
-                <FormItem style={{ marginBottom: 0 }}>
-                  {getFieldDecorator('publicUsers')(
-                    <Select
-                      mode="multiple"
-                      placeholder="公开给"
-                      style={{
-                        margin: '8px 0',
-                        display: getFieldValue('public') === '2' ? 'block' : 'none',
-                      }}
-                    >
-                      <Option value="1">同事甲</Option>
-                      <Option value="2">同事乙</Option>
-                      <Option value="3">同事丙</Option>
-                    </Select>
-                  )}
-                </FormItem>
-              </div>
-            </FormItem>
+              </List.Item>
+            )}
+          />
+
+
+
+          <FormItem label="Advanced" style={{ margin: 0 }}>
+
+            <Button.Group size="default">
+
+              <Button type="primary" icon="solution" ><small> Dockerfile </small></Button>
+              <Button type="primary" icon="cloud" ><small> POD (yml)</small></Button>
+              <Button type="primary" icon="download" ><small> Ing (yml) </small></Button>
+
+            </Button.Group>
+          </FormItem>
+
+
+          <Divider />
+
             <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
               <Button type="primary" htmlType="submit" loading={submitting}>
-                提交
+                OK
               </Button>
-              <Button style={{ marginLeft: 8 }}>保存</Button>
+              <Button style={{ marginLeft: 8 }}>CANCEL</Button>
             </FormItem>
           </Form>
         </Card>
-      </PageHeaderLayout>
     );
   }
 }

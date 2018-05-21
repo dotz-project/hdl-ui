@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import styles from './Diagram.less';
+import {Icon} from "antd";
 
 export class TrayItemWidget extends React.Component {
 	constructor(props) {
@@ -18,6 +19,8 @@ export class TrayItemWidget extends React.Component {
 				}}
 				className={styles.trayItem}
 			>
+				
+				<Icon type={this.props.icon} /> &nbsp;
 				{this.props.name}
 			</div>
 		);

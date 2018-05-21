@@ -12,6 +12,16 @@ export default class GlobalHeader extends PureComponent {
   componentWillUnmount() {
     this.triggerResizeEvent.cancel();
   }
+  
+  getPageTitle() {
+    const { routerData, location } = this.props;
+    let title = '';
+    if (routerData[location.pathname] && routerData[location.pathname].name) {
+      title = `${routerData[location.pathname].name}`;
+    }
+    return title;
+  }
+
   getNoticeData() {
     const { notices = [] } = this.props;
     if (notices.length === 0) {
@@ -97,6 +107,9 @@ export default class GlobalHeader extends PureComponent {
           type={collapsed ? 'menu-unfold' : 'menu-fold'}
           onClick={this.toggle}
         />
+        <span className={styles.left}>
+          {this.getPageTitle()}
+        </span>
         <div className={styles.right}>
           {/*
           <HeaderSearch

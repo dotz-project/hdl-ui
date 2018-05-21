@@ -1,4 +1,4 @@
-.srdDemoCanvas { font-size: 16px!important; width: 82vw;height: 65vh; background-color: #3c3c3c !important;background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent);background-size: 50px 50px;}
+.srdDemoCanvas { font-size: 14px!important; width: auto;height: 65vh; background-color: #3c3c3c !important;background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent);background-size: 50px 50px;}
 
 
 .body{
@@ -29,26 +29,114 @@
 }
 
 .tray{
-    min-width: 200px;
-    background: rgb(20,20,20);
-    flex-grow: 0;
-    flex-shrink: 0;
     overflow: auto;
 }
 .trayItem{
-    color: white;
-    font-family: Helvetica, Arial;
-    padding: 5px;
-    margin: 0px 10px;
+    color: black;
+    background: #EEEEEE;
+    text-align: left;
+    padding: 4%;
+    width: 95%;
+    margin: 2%;
     border: solid 1px;
-    border-radius: 5px;
-    margin-bottom: 2px;
-    width: 100px;
-    display: inline;
-    float: left;
-    margin: 2px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 11px;
     cursor: pointer;
 }
 
 
 
+@import '~antd/lib/style/themes/default.less';
+
+.card {
+  margin-bottom: 24px;
+}
+
+.heading {
+  font-size: 14px;
+  line-height: 22px;
+  margin: 0 0 16px 0;
+}
+
+.steps:global(.ant-steps) {
+  max-width: 750px;
+  margin: 16px auto;
+}
+
+.errorIcon {
+  cursor: pointer;
+  color: @error-color;
+  margin-right: 24px;
+  i {
+    margin-right: 4px;
+  }
+}
+
+.errorPopover {
+  :global {
+    .ant-popover-inner-content {
+      padding: 0;
+      max-height: 290px;
+      overflow: auto;
+      min-width: 256px;
+    }
+  }
+}
+
+.errorListItem {
+  list-style: none;
+  border-bottom: 1px solid @border-color-split;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  &:hover {
+    background: @primary-1;
+  }
+  &:last-child {
+    border: 0;
+  }
+  .errorIcon {
+    color: @error-color;
+    float: left;
+    margin-top: 4px;
+    margin-right: 12px;
+    padding-bottom: 22px;
+  }
+  .errorField {
+    font-size: 12px;
+    color: @text-color-secondary;
+    margin-top: 2px;
+  }
+}
+
+.editable {
+  td {
+    padding-top: 13px !important;
+    padding-bottom: 12.5px !important;
+  }
+}
+
+// custom footer for fixed footer toolbar
+.advancedForm + div {
+  padding-bottom: 64px;
+}
+
+.advancedForm {
+  :global {
+    .ant-form .ant-row:last-child .ant-form-item {
+      margin-bottom: 24px;
+      font-size: 20px;
+    }
+    .ant-table td {
+      transition: none !important;
+    }
+    
+  }
+}
+
+
+.optional {
+  color: @text-color-secondary;
+  font-style: normal;
+}
