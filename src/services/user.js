@@ -5,5 +5,13 @@ export async function query() {
 }
 
 export async function queryCurrent() {
-  return request('/api/currentUser');
+  try {
+    var promisse = request('http://localhost:8000/apiv1/users/me', {
+      method: 'POST',
+      body: {},
+    });
+    return promisse;
+  } catch (e) {
+    console.log(e);
+  }
 }

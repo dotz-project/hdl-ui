@@ -78,13 +78,13 @@ export default class GlobalHeader extends PureComponent {
     } = this.props;
     const menu = (
       <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-        <Menu.Item disabled>
+        <Menu.Item >
           <Icon type="user" />profile
         </Menu.Item>
-        <Menu.Item disabled>
+        <Menu.Item >
           <Icon type="setting" />settings
         </Menu.Item>
-        <Menu.Item key="triggerError">
+        <Menu.Item disabled key="triggerError">
           <Icon type="close-circle" />error
         </Menu.Item>
         <Menu.Divider />
@@ -93,7 +93,7 @@ export default class GlobalHeader extends PureComponent {
         </Menu.Item>
       </Menu>
     );
-    const noticeData = this.getNoticeData();
+    //const noticeData = this.getNoticeData();
     return (
       <div className={styles.header}>
         {isMobile && [
@@ -165,11 +165,11 @@ export default class GlobalHeader extends PureComponent {
             />
           </NoticeIcon>
           */}
-          {currentUser.name ? (
+          {currentUser.id ? (
             <Dropdown overlay={menu}>
               <span className={`${styles.action} ${styles.account}`}>
                 <Avatar size="small" className={styles.avatar} src={currentUser.avatar} />
-                <span className={styles.name}>{currentUser.name}</span>
+                <span className={styles.firstname}>{currentUser.firstname}</span>
               </span>
             </Dropdown>
           ) : (

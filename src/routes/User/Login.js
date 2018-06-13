@@ -23,6 +23,7 @@ export default class LoginPage extends Component {
 
   handleSubmit = (err, values) => {
     const { type } = this.state;
+    console.log(values);
     if (!err) {
       this.props.dispatch({
         type: 'login/login',
@@ -55,7 +56,7 @@ export default class LoginPage extends Component {
               login.type === 'account' &&
               !login.submitting &&
               this.renderMessage('Bad account or password（admin/888888）')}
-            <UserName name="userName" placeholder="admin/user" />
+            <UserName name="username" placeholder="admin/user" />
             <Password name="password" placeholder="888888/123456" />
           </Tab>
           {/*

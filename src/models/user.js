@@ -33,9 +33,10 @@ export default {
       };
     },
     saveCurrentUser(state, action) {
+      console.log(action.payload.data);
       return {
         ...state,
-        currentUser: action.payload,
+        currentUser: action.payload.data,
       };
     },
     changeNotifyCount(state, action) {

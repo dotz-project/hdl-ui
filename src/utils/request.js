@@ -2,6 +2,7 @@ import fetch from 'dva/fetch';
 import { notification } from 'antd';
 import { routerRedux } from 'dva/router';
 import store from '../index';
+import { setAuthority, getAuthority } from './authority';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -26,7 +27,7 @@ function checkStatus(response) {
   }
   const errortext = codeMessage[response.status] || response.statusText;
   notification.error({
-    message: `请求错误 ${response.status}: ${response.url}`,
+    message: `${response.status}: ${response.url}`,
     description: errortext,
   });
   const error = new Error(errortext);
@@ -44,7 +45,8 @@ function checkStatus(response) {
  */
 export default function request(url, options) {
   const defaultOptions = {
-    credentials: 'include',
+    credentials: 'same-origin',
+    cache: 'no-cache'
   };
   const newOptions = { ...defaultOptions, ...options };
   if (newOptions.method === 'POST' || newOptions.method === 'PUT') {
@@ -63,16 +65,34 @@ export default function request(url, options) {
       };
     }
   }
+  var token = getAuthority();
+  if (token){
+    newOptions.headers = {
+      ...newOptions.headers,
+      'Authorization' : token
+    };
+    newOptions.mode = 'cors';
+    //newOptions.redirect = 'follow';
+    //newOptions.referrer = 'client';
+  }
+  var status;
 
   return fetch(url, newOptions)
-    .then(checkStatus)
-    .then(response => {
-      if (newOptions.method === 'DELETE' || response.status === 204) {
-        return response.text();
+    .then(resp => {
+      status = resp.status
+      return resp;
+    })
+    .then(resp => {
+      return resp.json()
+    })
+    .then(resp => {
+      return {
+        status: status,
+        data: resp
       }
-      return response.json();
     })
     .catch(e => {
+      console.log(e);
       const { dispatch } = store;
       const status = e.name;
       if (status === 401) {

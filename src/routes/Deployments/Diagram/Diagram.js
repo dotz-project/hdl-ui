@@ -13,6 +13,8 @@ import ModalSolution from "./ModalSolution";
 
 import styles from './Diagram.less';
 
+
+
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -44,7 +46,7 @@ export default class Diagram extends PureComponent {
         };
 
         this.handleCreate = this.handleCreate.bind(this);
-        this.delSolution = this.delSolution.bind(this);
+        //this.delSolution = this.delSolution.bind(this);
         this.editSolution = this.editSolution.bind(this);
 
         this.showComponentModal = this.showComponentModal.bind(this);
@@ -138,10 +140,10 @@ export default class Diagram extends PureComponent {
         this.props.form.setFieldsValue({ solutions: _solutions})
     }
     
-    delSolution(e) {
-        e.preventDefault();
-        var _solutions = this.props.form.getFieldValue('solutions');
-        this.props.form.setFieldsValue({ solutions: [] })
+    delSolution(obj) {
+        this.props.form.setFieldsValue({ 
+            solutions: this.props.form.getFieldValue('solutions').filter(el => el.name != obj.name) 
+        });
     }
 
     editSolution(e) {
@@ -176,14 +178,20 @@ export default class Diagram extends PureComponent {
         this.props.dispatch({type:'environments/list',payload:{}});
         /** Carrega os componentes disponíveis */
         this.props.dispatch({type:'components/list',payload:{}});
-        /** Cria o node referente ao deployment */
+
+      
+        /** Cria o node referente ao deployment 
         this.ms = new SRD.DefaultNodeModel("MICRO SERVIÇO", "rgb(0,192,255)");
         this.ms.setPosition(140, 100);
-        this.msp = this.ms.addInPort(" ");
-        /** Adiciona no palco */
-        this.state.app.getDiagramEngine().getDiagramModel().addAll(this.ms);
+        this.msp = this.ms.addInPort(" - API.Default");
+        this.msp = this.ms.addInPort(" - API.Private");
+        this.ms.addInPort(" - UI.Default");
+        /** Adiciona no palco 
+         this.state.app.getDiagramEngine().getDiagramModel().addAll(this.ms);
+        */
         this.props.form.setFieldsValue({ solutions: [] })
 
+        
     }
 
     render() {
@@ -316,7 +324,7 @@ export default class Diagram extends PureComponent {
                                             bordered
                                             dataSource={this.props.form.getFieldValue('solutions')}
                                             renderItem={item => (
-                                                <List.Item style={{ fontSize: 10 }} actions={[<Button icon="edit" size="small" onClick={this.editSolution} data={item} />, <Button type="danger" icon="delete" onClick={this.delSolution} data={item} size="small" />]}>
+                                                <List.Item style={{ fontSize: 10 }} actions={[<Button icon="edit" size="small" onClick={this.editSolution} data={item} />, <Button type="danger" icon="delete" onClick={(e) => { e.preventDefault(); this.delSolution(item); }}  size="small" />]}>
                                                         {item.name}
                                                 </List.Item>
                                             )}
@@ -413,15 +421,19 @@ export default class Diagram extends PureComponent {
                                         var node = null;
                                         var port;
                                         node = new SRD.DefaultNodeModel(data.name, "rgb(192,255,0)");
-                                        port = node.addOutPort(" ");
-                                        /*var points = this.state.app.getDiagramEngine().getRelativeMousePoint(event);
-                                        node.x = points.x;
+                                        port = node.addOutPort("API.Default - ");
+                                        port = node.addOutPort("API.Private - ");
+                                        port = node.addOutPort("UI.Default - ");
+                                        //var points = this.state.app.getDiagramEngine().getRelativeMousePoint(event);
+                                        //node.setPosition(400, 400)
+                                        /*node.x = points.x;
                                         node.y = points.y;*/
-                                        var link = port.link(this.msp);
-                                        this.state.app.getDiagramEngine().getDiagramModel().addAll(node, link);
+                                        //node.setPosition(points.x, points.y);
+                                        //var link = port.link(this.msp);
+                                        this.state.app.getDiagramEngine().getDiagramModel().addAll(node);
                                         this.forceUpdate();
-                                        this.showComponentModal(data.name);
-                                        this.props.form.setFieldsValue({ components: this.state.app.getDiagramEngine().getDiagramModel().getNodes() })
+                                        //this.showComponentModal(data.name);
+                                        //this.props.form.setFieldsValue({ components: this.state.app.getDiagramEngine().getDiagramModel().getNodes() })
                                     }}
                                     onDragOver={event => {
                                         event.preventDefault();
